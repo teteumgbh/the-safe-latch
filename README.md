@@ -10,7 +10,7 @@ Sending raw audio streams and untrusted webpage DOMs directly to cloud models cr
 
 1. **Layer 1 — Explicit Silence Gating (ESG 450ms / 300ms Residual):** Runs locally via WebAudio/VAD. When user speech pauses for `>450ms`, the client gate locks and replaces dead air with a uniform `300ms` residual frame—preventing decoder phantom loops (e.g., *"Thank you for watching"*) and dropping silence payloads before cloud transmission.
 2. **Layer 2 — On-Device Prompt Injection Firewall:** Inspects untrusted DOM context and voice transcripts locally in sub-millisecond time to block known instruction-override patterns and data exfiltration attempts before they reach the cloud API.
-3. **Layer 3 — Firebase AI Logic Hybrid Router:** Resolves lightweight deterministic/local intents on-device at zero cloud cost, routing only verified complex analytical tasks to **Gemini Flash/Pro via Firebase AI Logic**.
+3. **Layer 3 — Firebase AI Logic Hybrid Router:** Resolves lightweight deterministic/local intents on-device at zero cloud cost, routing only verified complex analytical tasks to **Gemini Flash/Pro via Firebase AI Logic**—with the context pruned on-device first (measured, character by character).
 
 ## 📊 Empirical 7-Scenario Benchmark (300 Iterations / Scenario)
 
@@ -18,27 +18,26 @@ The core gatekeeper function (`inspectPayloadOnDevice`) was extracted from the p
 
 | Scenario | Latch Status | Cloud Savings | Input Payload (chars) | Sent to Cloud (chars) | Median Latency |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **1. Simple Local Intent** | `AMBER_LOCAL` | 100% | 96 | 0 | 0.0037 ms |
-| **2. Complex Analytical (Cloud)** | `GREEN_CLOUD` | 0% raw / 38% est.* | 164 | 164 raw (102 est.*) | 0.0039 ms |
-| **3. Hidden DOM Injection** | `RED_BLOCKED` | 100% | 196 | 0 | 0.0014 ms |
-| **4. Pause Hallucination (2.5s)** | `AMBER_SILENCE` | 100% | 135 | 0 | 0.0007 ms |
-| **5. Jailbreak / Override** | `RED_BLOCKED` | 100% | 139 | 0 | 0.0019 ms |
-| **6. Email-Body Injection** | `RED_BLOCKED` | 100% | 108 | 0 | 0.0013 ms |
-| **7. Silence (1.8s) + Subtitles** | `AMBER_SILENCE` | 100% | 78 | 0 | 0.0007 ms |
+| **1. Simple Local Intent** | `AMBER_LOCAL` | 100% | 96 | 0 | 0.0025 ms |
+| **2. Complex Analytical (Cloud)** | `GREEN_CLOUD` | 5% (measured pruning) | 164 | 156 | 0.0041 ms |
+| **3. Hidden DOM Injection** | `RED_BLOCKED` | 100% | 196 | 0 | 0.0017 ms |
+| **4. Pause Hallucination (2.5s)** | `AMBER_SILENCE` | 100% | 135 | 0 | 0.0008 ms |
+| **5. Jailbreak / Override** | `RED_BLOCKED` | 100% | 139 | 0 | 0.0022 ms |
+| **6. Email-Body Injection** | `RED_BLOCKED` | 100% | 108 | 0 | 0.0017 ms |
+| **7. Silence (1.8s) + Subtitles** | `AMBER_SILENCE` | 100% | 78 | 0 | 0.0008 ms |
 
 ### Summary of Measured Totals
 - **Total Input Payload Evaluated:** `916 characters` across the 7 benchmark scenarios.
-- **Strict Uncompressed Cloud Transmission:** `164 characters` (Scenarios 1 and 3–7 completely gated/resolved locally = **82.1% strict payload reduction**).
-- **Projected Pruned Cloud Transmission:** `102 characters` (**88.9% weighted payload reduction** when applying the 38% context-pruning target on Scenario 2).
+- **Measured Cloud Transmission:** `156 characters` — a **83.0% total measured payload reduction** (`760 / 916` chars blocked, resolved locally, or pruned on-device). Every figure is measured; v1.1 contains no estimated constants.
 - **Benchmark Injection Block Rate:** `3 / 3` (100% of tested indirect DOM & override scenarios blocked locally).
 - **Benchmark Pause Hallucination Containment:** `2 / 2` (100% of tested silence-induced phantom loops gated locally).
-- **Heuristic Filter Median Latency:** `0.0007 ms – 0.0039 ms` (well below the `< 5 ms` real-time budget).
+- **Heuristic Filter Median Latency:** `0.0008 ms – 0.0041 ms` (well below the `< 5 ms` real-time budget).
 
 ## 🔬 Methodology & Engineering Caveats
 To maintain strict empirical transparency (following the verification standard established in *O Encaixe*):
 1. **Scope of Detection (Rule-Based Baseline vs. Arbitrary Attacks):** The `3/3` injection block rate and `2/2` silence containment reflect execution of the actual production function against the 7 deterministic scenarios embedded in the suite. While this validates the deterministic regex/heuristic layer against known override signatures, arbitrary obfuscated prompt injections require pairing this fast pre-filter with an on-device semantic classifier (e.g., Gemini Nano via Web AI / Firebase AI Logic).
-2. **Scenario 2 Compression Metric (`-38%`):** In `v1.0` of `index.html`, the `38%` savings on `GREEN_CLOUD` routes is a static target constant (`saved: 38` -> `102 chars`) rather than dynamic string compression. Without context pruning on Scenario 2, all `164 chars` are forwarded to the cloud, yielding a purely deterministic local gating savings of **82.1%** (`752 / 916 chars` blocked or handled locally).
-3. **Execution Environment:** Latency medians (`0.0007 ms` to `0.0039 ms`) were measured via automated Node.js extraction (`300 iterations/scenario`). While orders of magnitude below the `< 5 ms` threshold, live browser DOM + WebAudio telemetry on mobile hardware (ASUS ROG Phone 9 Pro) is scheduled for Phase 2 verification.
+2. **Scenario 2 Pruning Metric:** In `v1.0`, the `38%` savings on `GREEN_CLOUD` routes was a static target constant rather than dynamic compression. `v1.1` replaces it with real on-device pruning (HTML comments, boilerplate stopwords, duplicate whitespace), measured character by character: on Scenario 2's clean enterprise text it forwards `156` of `164` payload chars (−5%); heavier real-world boilerplate prunes more.
+3. **Execution Environment:** Latency medians (`0.0008 ms` to `0.0041 ms`) were measured via automated Node.js extraction (`300 iterations/scenario`). While orders of magnitude below the `< 5 ms` threshold, live browser DOM + WebAudio telemetry on mobile hardware (ASUS ROG Phone 9 Pro) is scheduled for Phase 2 verification.
 
 ## 🚀 Quick Start (Zero Dependencies)
 1. Open the live deployment at [https://teteumgbh.github.io/the-safe-latch/](https://teteumgbh.github.io/the-safe-latch/) or open `index.html` locally in any modern desktop or mobile browser.

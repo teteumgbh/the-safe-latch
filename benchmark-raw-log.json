@@ -1,4 +1,5 @@
 {
+  "version": "v1.1-real-pruning",
   "rows": [
     {
       "n": "1 Simple Local Intent",
@@ -6,19 +7,19 @@
       "savedPct": 100,
       "payloadChars": 96,
       "sentChars": 0,
-      "medianMs": 0.0037,
-      "avgMs": 0.0073,
+      "medianMs": 0.0025,
+      "avgMs": 0.0086,
       "reason": "Hybrid Router: Simple intent resolved 100% On-Device (Gemini Nano). 0 cloud tokens used."
     },
     {
       "n": "2 Complex Analytical Query (cloud)",
       "status": "GREEN_CLOUD",
-      "savedPct": 38,
+      "savedPct": 5,
       "payloadChars": 164,
-      "sentChars": 102,
-      "medianMs": 0.0039,
-      "avgMs": 0.0069,
-      "reason": "Payload verified clean. Compressed context (-38% tokens) forwarded to Firebase AI Logic Cloud."
+      "sentChars": 156,
+      "medianMs": 0.0041,
+      "avgMs": 0.0107,
+      "reason": "Payload verified clean. Context pruned (165 -> 156 chars, -5%) forwarded to Firebase AI Logic Cloud."
     },
     {
       "n": "3 Hidden DOM Injection",
@@ -26,8 +27,8 @@
       "savedPct": 100,
       "payloadChars": 196,
       "sentChars": 0,
-      "medianMs": 0.0014,
-      "avgMs": 0.0021,
+      "medianMs": 0.0017,
+      "avgMs": 0.0045,
       "reason": "On-Device Firewall: Blocked indirect Prompt Injection (ignore (all )?previous instructions). Cloud API protected."
     },
     {
@@ -36,8 +37,8 @@
       "savedPct": 100,
       "payloadChars": 135,
       "sentChars": 0,
-      "medianMs": 0.0007,
-      "avgMs": 0.0011,
+      "medianMs": 0.0008,
+      "avgMs": 0.0019,
       "reason": "ESG Gate (450ms/300ms): Suppressed pause hallucination locally. 0 tokens sent to cloud."
     },
     {
@@ -46,8 +47,8 @@
       "savedPct": 100,
       "payloadChars": 139,
       "sentChars": 0,
-      "medianMs": 0.0019,
-      "avgMs": 0.0025,
+      "medianMs": 0.0022,
+      "avgMs": 0.0061,
       "reason": "On-Device Firewall: Blocked indirect Prompt Injection (developer mode override). Cloud API protected."
     },
     {
@@ -56,8 +57,8 @@
       "savedPct": 100,
       "payloadChars": 108,
       "sentChars": 0,
-      "medianMs": 0.0013,
-      "avgMs": 0.0036,
+      "medianMs": 0.0017,
+      "avgMs": 0.0017,
       "reason": "On-Device Firewall: Blocked indirect Prompt Injection (ignore (all )?previous instructions). Cloud API protected."
     },
     {
@@ -66,16 +67,16 @@
       "savedPct": 100,
       "payloadChars": 78,
       "sentChars": 0,
-      "medianMs": 0.0007,
-      "avgMs": 0.0007,
+      "medianMs": 0.0008,
+      "avgMs": 0.0009,
       "reason": "ESG Gate (450ms/300ms): Suppressed pause hallucination locally. 0 tokens sent to cloud."
     }
   ],
   "totals": {
     "payloadChars": 916,
-    "sentChars": 102,
-    "savedChars": 814,
-    "weightedSavingsPct": 88.9,
+    "sentChars": 156,
+    "savedChars": 760,
+    "measuredSavingsPct": 83,
     "injectionBlockRate": "3/3",
     "hallucinationGated": "2/2"
   }

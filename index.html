@@ -232,11 +232,21 @@
       };
     }
 
+    // Camada 3 (poda real, v1.1): sanitização e poda de DOM/boilerplate medida caractere a caractere
+    const rawLen = combined.length;
+    const prunedDom = dom
+      .replace(/<!--[\s\S]*?-->/g, '')
+      .replace(/\b(standard|page|with|for|the|and)\b/gi, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    const sentLen = voice.length + 1 + prunedDom.length;
+    const realSavedPct = Math.max(0, Math.round(((rawLen - sentLen) / rawLen) * 100));
+
     return {
       status: 'GREEN_CLOUD',
-      ms: Math.max(4, Math.round(performance.now() - t0)),
-      saved: 38, // Compressão de contexto + corte de silêncio antes da nuvem
-      reason: 'Payload verified clean. Compressed context (-38% tokens) forwarded to Firebase AI Logic Cloud.'
+      ms: Math.max(1, Math.round(performance.now() - t0)),
+      saved: realSavedPct,
+      reason: `Payload verified clean. Context pruned (${rawLen} -> ${sentLen} chars, -${realSavedPct}%) forwarded to Firebase AI Logic Cloud.`
     };
   }
 
