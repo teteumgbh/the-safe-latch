@@ -5,6 +5,8 @@ Built for the **Google / Firebase #BuildHybridAI Hackathon 2026**, **The Safe La
 
 🔗 **Live Interactive Console:** [https://teteumgbh.github.io/the-safe-latch/](https://teteumgbh.github.io/the-safe-latch/)
 
+🔗 **Sibling project — FinSec Sentinel:** the same deterministic core (DLP shield, loop circuit breaker, L2.5 Task-to-Tool Reachability, live audit ledger) aimed at enterprise multi-agent governance (FinOps/SecOps), also entered in #BuildHybridAI. Repo: [github.com/teteumgbh/finsec-sentinel](https://github.com/teteumgbh/finsec-sentinel) · Live: [teteumgbh.github.io/finsec-sentinel](https://teteumgbh.github.io/finsec-sentinel/)
+
 ## 🧠 Why Hybrid AI? (On-Device + Cloud Architecture)
 Sending raw audio streams and untrusted webpage DOMs directly to cloud models creates severe security risks, high latency, and wasted API costs. **The Safe Latch** splits execution across three client-to-cloud layers:
 
