@@ -73,3 +73,27 @@ Inspired by the architecture of **Gatekeeper** (2nd place Indie, Meta Global AI 
 
 ## 📄 License
 MIT License — Created by Matheus Filipe Ferreira Lima (`@teteumgbh`).
+
+## Split-Screen Arena — Live Attack vs. Blocked (Nov 9, 2026, later that night)
+
+A visual layer on top of v1.2, built the team way (design + code by Jim,
+integration + measurement by Muse): the **Split-Screen Arena** replays the
+same scenario on two sides at once. Left: an honest simulation of an
+unprotected voice agent (it concatenates voice + DOM raw and blindly executes
+induced actions — exfiltrations, hijacks and silence hallucinations included).
+Right: the **real** Safe Latch pipeline — the panel calls the page's actual
+`inspectPayloadOnDevice` / `verifyIntentReachability` and renders the measured
+verdict, chars sent and latency, with the L1 → L2 → L2.5 → L3 chips lighting up.
+
+Integration notes (all disclosed to Jim):
+- The 10 scenarios were hoisted into a single source of truth
+  (`BENCHMARK_SUITE`); the benchmark button and the Arena consume the SAME
+  objects via `window.SAFE_LATCH_SCENARIOS`, so the panel demos exactly what
+  the benchmark measures. The engine itself is untouched — the v1.2 harness
+  still reports **all verdicts matched, 300/300**, payloads identical.
+- The scoreboard's protected-side char count reads the engine's measured
+  `audit.charsSent`, never a percentage-derived estimate.
+- The unprotected simulation also flags the page's S6 "forward all contacts"
+  injection as a hijack, and a literal `</script>` inside Jim's fallback
+  catalog was escaped (`<\/script>`) so it cannot terminate the page's script
+  block.
