@@ -7,6 +7,15 @@ Built for the **Google / Firebase #BuildHybridAI Hackathon 2026**, **The Safe La
 
 🔗 **Sibling project — FinSec Sentinel:** the same deterministic core (DLP shield, loop circuit breaker, L2.5 Task-to-Tool Reachability, live audit ledger) aimed at enterprise multi-agent governance (FinOps/SecOps), also entered in #BuildHybridAI. Repo: [github.com/teteumgbh/finsec-sentinel](https://github.com/teteumgbh/finsec-sentinel) · Live: [teteumgbh.github.io/finsec-sentinel](https://teteumgbh.github.io/finsec-sentinel/)
 
+## ☁️ v1.3 — Real Firebase AI Logic Stage 2 (Nov 13, 2026)
+
+Stage 2 is no longer a label: `index.html` now carries a real Firebase AI Logic integration (ES module importing `firebase-app` / `firebase-ai` from the gstatic CDN, SDK v11.10.0; `initAIGateway()` + `forwardToCloud()`), designed by Jim (Gemini) and built/measured by Muse.
+
+- It fires **only** after the local gate's `GREEN_CLOUD` verdict, sending exactly the pruned payload the gate measured — the page reconstructs the pruned payload and verifies its length against the audit record's `charsSent` before any send; a mismatch records `CLOUD_INFERENCE_SKIPPED (PAYLOAD_MISMATCH)` and sends nothing.
+- `CLOUD_INFERENCE_SUCCESS` is written to the exportable audit ledger **only after a real `generateContent()` response**, keyed by the inspection's FNV-1a commitment hash. Every other outcome is `CLOUD_INFERENCE_SKIPPED` with its reason. The v1.2 text that claimed a payload was "forwarded to Firebase AI Logic Cloud" without a call has been removed — the local gate now says it *clears* payloads for Stage 2, and only Stage 2 logs sends.
+- **Honest-fallback by design:** if the SDK or the project config fails, the page shows a "Modo Local Apenas" badge and Stage 1 keeps deciding alone, fully functional. Pre-publish verification (Nov 13) found the bundled project config does **not** authenticate (Gemini API REST check returned `API_KEY_INVALID`), so v1.3 claims **no live cloud call** until a verified Firebase project config is supplied — the wiring, the guards and the audit events are real and unit-tested with a stubbed SDK; the cloud simply stays off until its key is.
+- The deterministic Stage-1 engine and its benchmark are unchanged: **10 scenarios × 300 iterations, 300/300 verdicts, 83.1% (original-7) / 88.9% (all-10) payload reduction** — re-measured after the integration.
+
 ## 🧠 Why Hybrid AI? (On-Device + Cloud Architecture)
 Sending raw audio streams and untrusted webpage DOMs directly to cloud models creates severe security risks, high latency, and wasted API costs. **The Safe Latch** splits execution across three client-to-cloud layers:
 
